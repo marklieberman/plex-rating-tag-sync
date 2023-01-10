@@ -30,6 +30,26 @@ var modifiedDaysOption = new Option<int>(
         description:  "Only sync files modified within this many days.",
         getDefaultValue: () => -1
 );
+
+var listLibrarySectionsCommand = new Command("list-library-sections", "List library sections by key.")
+{
+        serverBaseOption,
+        plexTokenOption
+};
+rootCommand.AddCommand(listLibrarySectionsCommand);
+
+listLibrarySectionsCommand.SetHandler(async (serverBase, plexToken) =>
+{
+    var options = new SyncOptions(
+        serverBase,
+        plexToken,
+        String.Empty,
+        0);
+
+    await ListLibrarySectionsAsync(client, options);
+},
+serverBaseOption, plexTokenOption);
+
 var syncToPlexCommand = new Command("sync-to-plex", "Sync ratings from files to Plex.") 
 {
         serverBaseOption,
@@ -52,6 +72,35 @@ syncToPlexCommand.SetHandler(async (serverBase, plexToken, librarySection, modif
 serverBaseOption, plexTokenOption, librarySectionOption, modifiedDaysOption);
 
 return await rootCommand.InvokeAsync(args);
+
+static async Task ListLibrarySectionsAsync(HttpClient client, SyncOptions options)
+{
+    PlexRes? res;
+    string url = String.Empty;
+
+    try
+    {
+        url = $"{options.ServerBase}/library/sections?X-Plex-Token={options.PlexToken}";
+        res = await client.GetFromJsonAsync<PlexRes>(url);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Failed to library sections");
+        Console.WriteLine($"Request URL: {url}");
+        Console.WriteLine(ex.StackTrace);
+        return;
+    }
+
+    var dirs = res!.MediaContainer.Directory.OrderBy((d) => { return d.Key; }).ToArray();
+    if (dirs != null)
+    {
+        Console.WriteLine($"{"Library Section",-15}    Title");
+        for (var i = 0; i < dirs.Length; i++)
+        {
+            Console.WriteLine($"{dirs[i].Key.PadRight(15, '.')}....{dirs[i].Title}");
+        }
+    }
+}
 
 static async Task SyncAllRatingsAsync(HttpClient client, SyncOptions options)
 {

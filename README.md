@@ -2,9 +2,23 @@
 
 Set the Plex user rating for all tracks in a music library to match the metadata tag (ID3v2, etc) rating.
 
-You need to obtain your Plex token and the section umber of the library to update.
+You need to obtain your Plex token and the section number of the library to update.
 
 See: https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/
+
+## List Library Sections
+
+Print a table of libraries and the section key for use with the other modes.
+
+```sh
+Usage:
+  PlexRatingTagSync list-library-sections [options]
+
+Options:
+  --plex-host <plex-host> (REQUIRED)    Plex server hostname and port.
+  --plex-token <plex-token> (REQUIRED)  Your Plex token.
+  -?, -h, --help                        Show help and usage information
+```
 
 ## Sync from Metadata Tag to Plex User Rating
 
